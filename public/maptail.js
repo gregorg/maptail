@@ -531,7 +531,15 @@ window.onload = function () {
           if (geo.message) {
             messages.add(geo.message)
 		  }
-          matches.consider(geo)
+		  if(geo.ip)
+		  {
+          	matches.consider(geo)
+		  }
+		  if(geo.sound)
+		  {
+		    var snd = new Audio(geo.sound + ".mp3")
+		    snd.play()
+		  }
         }, n += nadd)
       })
     })

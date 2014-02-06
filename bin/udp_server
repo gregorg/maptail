@@ -8,7 +8,7 @@ var express   = require('express'),
     colors    = require('colors'),
     maptail   = require('../'),
     app       = exports.app = express.createServer(),
-    PORT      = process.env.PORT || 8080,
+    PORT      = process.env.PORT || 8084,
 	HOST      = process.env.HOST || '0.0.0.0',
     UDP_PORT  = process.env.UDP_PORT || 3001;
 
@@ -43,12 +43,20 @@ udpServer.on("message", function (msg, rinfo) {
   var message;
   try {
     message = JSON.parse(msg);
-    maptail.emit('ip',
-      message.ip,
-      message.ip.white + " Info: ".blue + message.info.green // Format the message - uses Colors module
-    )
+	if(message.ip)
+	{
+		maptail.emit('ip',
+		  message.ip,
+		  message.ip.white + " Info: ".blue + message.info.green // Format the message - uses Colors module
+		)
+	}
+	else
+	{
+		maptail.emit('json', message);
+	}
   }
   catch(err) {
+  	console.log(err);
 	message = msg.toString().replace(/(\n|\r)+$/, '');
 	if(message)
 	{
