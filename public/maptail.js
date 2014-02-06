@@ -537,6 +537,7 @@ window.onload = function () {
 		  }
 		  if(geo.sound)
 		  {
+		  	console.log("Playing sound: " + geo.sound)
 		    var snd = new Audio(geo.sound + ".mp3")
 		    snd.play()
 		  }

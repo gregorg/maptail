@@ -18,7 +18,8 @@ app.use(maptail.static());
 
 /** Configure maptail **/
 /** maptail.config.onlyLookups = true; **/
-maptail.config.bufferTime = 3000;
+maptail.config.bufferTime = 1000;
+maptail.config.bufferMax = 1000;
 maptail.config.fps = 1000 / 120;
 maptail.config.ttl = 60;
 maptail.config.maxDots = 200;
