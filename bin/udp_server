@@ -56,7 +56,6 @@ udpServer.on("message", function (msg, rinfo) {
 	}
   }
   catch(err) {
-  	console.log(err);
 	message = msg.toString().replace(/(\n|\r)+$/, '');
 	if(message)
 	{
