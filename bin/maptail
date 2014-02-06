@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// vim: set ft=javascript
 
 var help = '\nusage: maptail [-f filename] [-h host] [-p port] [options...]\n\n'
          + '  --maxdots <number> ..... maximum number of dots to display on screen [50]\n'
@@ -16,6 +17,7 @@ var config = {
   host: 'localhost'
 , port: 8080
 }
+process.title = "maptail"
 
 var arg, args = process.argv.slice(2), spawnArgs = []
 while (arg = args.shift()) {
@@ -70,7 +72,7 @@ tail.on('data', function (data) {
     })
     if (ips.length) {
       ips.forEach(function (ip) {
-        maptail.emit('ip', ip, line)
+        maptail.emit('ip', ip, null)
       })
     } else {
       maptail.emit('ip', null, line)
