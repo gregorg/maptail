@@ -59,7 +59,6 @@ udpServer.on("message", function (msg, rinfo) {
 	message = msg.toString().replace(/(\n|\r)+$/, '');
 	if(message)
 	{
-		console.log(message);
     	maptail.emit('ip', message, null);
 	}
   }
