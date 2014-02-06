@@ -407,7 +407,6 @@ window.onload = function () {
       }
       var html =
       '<div class="data">'
-      + '<div class="ip">' + geo.ip + '</div>'
       + '<div class="location">'
       + (geo.city ? geo.city + ', ' : '') + (geo.country ? geo.country : 'unknown')
       + '</div>'
@@ -531,8 +530,8 @@ window.onload = function () {
           active.textContent = visitors
           if (geo.message) {
             messages.add(geo.message)
-            matches.consider(geo)
-          }
+		  }
+          matches.consider(geo)
         }, n += nadd)
       })
     })
