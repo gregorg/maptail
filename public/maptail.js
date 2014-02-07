@@ -6,14 +6,27 @@ var visitors = 0
 function visitorsInc () { visitors++ }
 function visitorsDec () { visitors-- }
 
-// app
 
+// ugly reconnect ....
+function reconnect(client)
+{
+  console.log("Disconnected :( Will retry in 1s ...")
+  setTimeout(function () {
+    try {
+      window.onload()
+    } catch (e) {}
+  }, 1000)
+}
+
+// app
 function connect (callback) {
   var simpl = require('simpl')
   var client = simpl.createClient()
   client.use(simpl.events())
   client.use(simpl.json())
   client.on('connect', callback)
+  client.on('close', reconnect)
+  client.on('error', function (client) {})
 }
 
 function safe (text) {
@@ -516,7 +529,8 @@ window.onload = function () {
 
   matches.regexp = regexpInput.value && new(RegExp(regexpInput.value, 'igm')) || false
 
-  connect(function (client) {  
+  var on_connect = function (client) {
+    console.log("Connected!")
     client.remote.on('config', function (cfg) {
       if (cfg.dateNow) cfg.timeDiff = Date.now() - cfg.dateNow
       for (var k in cfg) { config[k] = cfg[k] }
@@ -546,7 +560,8 @@ window.onload = function () {
     })
 
     client.remote.emit('subscribe', 'geoip')
-  })
+  }
+  connect(on_connect)
 
   ;(function tick () {
     map.markers.age()
