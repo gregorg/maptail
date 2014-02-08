@@ -10,6 +10,7 @@ var help = '\nusage: maptail [-f filename|--udp] [-h host] [-p port] [--udp-port
          + '  --fps <fps> ............ how fast do the markers age [60]'
          + '  --quiet ................ really quiet, output nothing\n'
          + '  --verbose .............. proxy to stdout\n'
+         + '  --no-message ........... disable messages\n'
 
 var spawn = require('child_process').spawn
 var express   = require('express'),
@@ -25,6 +26,7 @@ var config = {
 , mode: 'file'
 , quiet: false
 , verbose: false
+, nomessage: false
 }
 process.title = "maptail"
 
@@ -35,6 +37,7 @@ while (arg = args.shift()) {
   else if (arg == '--help') console.log(help), process.exit()
   else if (arg == '--quiet') config.quiet = true
   else if (arg == '--verbose') config.verbose = true
+  else if (arg == '--no-message') config.nomessage = true
   else if (arg == '--max-dots' || arg == '--maxdots') maptail.config.maxDots = parseInt(args.shift(), 10)
   else if (arg == '--decay' || arg == '--ttl') maptail.config.ttl = parseInt(args.shift(), 10)
   else if (arg == '--max-age' || arg == '--maxage') maptail.config.maxAge = parseInt(args.shift(), 10)
@@ -67,9 +70,9 @@ function parse_message (msg)
     var message = JSON.parse(msg);
     if(message.ip && !message.info)
     {
-    message.info = message.ip.white + " Info: ".blue + message.info.green // Format the message - uses Colors module
+      message.info = message.ip.white + " Info: ".blue + message.info.green // Format the message - uses Colors module
     }
-  messages.push(message)
+    messages.push(message)
   }
   catch(err) {
     msg = msg.toString()
@@ -89,12 +92,13 @@ function parse_message (msg)
           messages.push({'ip': ip})
         })
       } else {
-      messages.push({'info': msg})
+        messages.push({'info': msg})
       }
     }
   }
 
   messages.forEach(function (message) {
+    if (config.nomessage) message.info = null
     if (config.verbose) console.log('Message: ip=' + message.ip + ', info=' + message.info)
     maptail.emit('message', message);
   })
