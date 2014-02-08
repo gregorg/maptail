@@ -1,10 +1,14 @@
 # maptail
 
+Forked from [maptail](https://github.com/stagas/maptail)
+
 <img src="http://dl.dropbox.com/u/396087/maptail.png" border="0" />
 
 maptail is a realtime map view of GeoIP data. Attach it to your server to track visitors, tail a log, pipe to its stdin or use it as a library to build your own implementation. Just emit IP addresses to it from any source and you'll automagically get a cool map with yellow dots and stuff like that streamed in with websockets or whatever transport you'd like to use.
 
 ## Installing
+
+(not available for this fork, use git clone)
 
 `npm install maptail -g`
 
@@ -17,6 +21,13 @@ Omit the `-g` to install as a module.
 `$ maptail -f nohup.out`
 
 `$ tail -f nohup.out | maptail -h my.host.com -p 3000`
+
+### The UDP Server
+
+`$ maptail --udp --udp-port 3001
+
+`$ tail -f access.log | nc -u localhost 3001
+
 
 ### In your server:
 
@@ -40,6 +51,8 @@ Let me explain what these are doing here a bit. `maptail.track()` tracks visitor
 If for example you don't want to track visitors of the http server but instead you want to send IPs from another source, you can easily remove `maptail.track()` from the middleware and use `maptail.emit('ip', ipAddress[, logMessage])` to feed our map. It will take care the rest for you.
 
 ## Credits
+
+Forked from [maptail](https://github.com/stagas/maptail)
 
 This is based on [mape](https://github.com/mape)'s [wargames](https://github.com/mape/node-wargames).
 
