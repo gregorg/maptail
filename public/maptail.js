@@ -542,19 +542,19 @@ window.onload = function () {
         setTimeout(function () {
           if (geo.ll) map.placeMarker(geo)
           active.textContent = visitors
-          if (geo.message) {
-            messages.add(geo.message)
-		  }
-		  if(geo.ip)
-		  {
-          	matches.consider(geo)
-		  }
-		  if(geo.sound)
-		  {
-		  	console.log("Playing sound: " + geo.sound)
-		    var snd = new Audio(geo.sound + ".mp3")
-		    snd.play()
-		  }
+          if (geo.info) {
+            messages.add(geo.info)
+      }
+      if(geo.ip)
+      {
+            matches.consider(geo)
+      }
+      if(geo.sound)
+      {
+        console.log("Playing sound: " + geo.sound)
+        var snd = new Audio(geo.sound + ".mp3")
+        snd.play()
+      }
         }, n += nadd)
       })
     })

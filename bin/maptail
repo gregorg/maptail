@@ -1,21 +1,30 @@
 #!/usr/bin/env node
-// vim: set ft=javascript
+// vim: set ft=javascript:
 
-var help = '\nusage: maptail [-f filename] [-h host] [-p port] [options...]\n\n'
+var help = '\nusage: maptail [-f filename|--udp] [-h host] [-p port] [--udp-port port] [options...]\n\n'
          + '  --maxdots <number> ..... maximum number of dots to display on screen [50]\n'
          + '  --ttl <seconds> ........ marker initial time to live [15]\n'
          + '  --maxage <seconds> ..... maximum time which one is considered a visitor [300]\n'
          + '  --buffer <ms> .......... buffer in ms [250]'         
+         + '  --buffer-size <size> ... buffer size'
          + '  --fps <fps> ............ how fast do the markers age [60]'
-         + '  --quiet ................ don\'t proxy to stdout\n'
+         + '  --quiet ................ really quiet, output nothing\n'
+         + '  --verbose .............. proxy to stdout\n'
 
 var spawn = require('child_process').spawn
-var maptail = require('../')
-var express = require('express')
+var express   = require('express'),
+    udpServer = exports.udp = require("dgram").createSocket("udp4"),
+    colors    = require('colors'),
+    maptail   = require('../'),
+    app       = exports.app = express.createServer()
 
 var config = {
   host: 'localhost'
 , port: 8080
+, udpport: 3001
+, mode: 'file'
+, quiet: false
+, verbose: false
 }
 process.title = "maptail"
 
@@ -25,13 +34,19 @@ while (arg = args.shift()) {
   else if (arg == '-p' || arg == '--port') config.port = parseInt(args.shift(), 10)
   else if (arg == '--help') console.log(help), process.exit()
   else if (arg == '--quiet') config.quiet = true
+  else if (arg == '--verbose') config.verbose = true
   else if (arg == '--max-dots' || arg == '--maxdots') maptail.config.maxDots = parseInt(args.shift(), 10)
   else if (arg == '--decay' || arg == '--ttl') maptail.config.ttl = parseInt(args.shift(), 10)
   else if (arg == '--max-age' || arg == '--maxage') maptail.config.maxAge = parseInt(args.shift(), 10)
   else if (arg == '--fps') maptail.config.fps = 1000 / parseInt(args.shift(), 10)
   else if (arg == '--buffer') maptail.config.bufferTime = parseInt(args.shift(), 10)
+  else if (arg == '--buffer-size') maptail.config.bufferMax = parseInt(args.shift(), 10)
+  else if (arg == '--udp') config.mode = 'udp'
+  else if (arg == '--udp-port') config.udpport = parseInt(args.shift(), 10)
   else spawnArgs.push(arg)
 }
+
+maptail.config.quiet = config.quiet
 
 var app = express.createServer()
 
@@ -43,40 +58,93 @@ app.listen(config.port, config.host, function () {
   if (!config.quiet) console.log('* started http://' + config.host + ':' + config.port + '/')
 })
 
-var tail
-if (~spawnArgs.indexOf('-f')) {
-  if (!config.quiet) console.log('* tailing:', spawnArgs[spawnArgs.indexOf('-f') + 1])
-  tail = spawn('tail', spawnArgs).stdout
-}
-else {
-  console.log('* tailing stdin')
-  process.stdin.resume()
-  tail = process.stdin
-}
 
-var lines = ''
 
-tail.setEncoding('utf8')
-tail.on('data', function (data) {
-  if (!config.quiet) process.stdout.write(data)
-  lines += data
-  lines = lines.replace(/([^\r\n]+|[^\n]+)[\r\n|\n]+/g, function (m, line) {
-    var ips = (
-      line.match(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm)
-      || []
-      ).filter(function(ip) {
-      return ip
+function parse_message (msg)
+{
+  var messages = []
+  try {
+    var message = JSON.parse(msg);
+    if(message.ip && !message.info)
+    {
+    message.info = message.ip.white + " Info: ".blue + message.info.green // Format the message - uses Colors module
+    }
+  messages.push(message)
+  }
+  catch(err) {
+    msg = msg.toString()
+    if(msg)
+    {
+      var ips = (
+        msg.match(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm)
+        || []
+        ).filter(function(ip) {
+        return ip
         .split('.')
         .filter(function (el) { return el < 10 })
         .length < 3
-    })
-    if (ips.length) {
-      ips.forEach(function (ip) {
-        maptail.emit('ip', ip, null)
       })
-    } else {
-      maptail.emit('ip', null, line)
+      if (ips.length) {
+        ips.forEach(function (ip) {
+          messages.push({'ip': ip})
+        })
+      } else {
+      messages.push({'info': msg})
+      }
     }
-    return ''
+  }
+
+  messages.forEach(function (message) {
+    if (config.verbose) console.log('Message: ip=' + message.ip + ', info=' + message.info)
+    maptail.emit('message', message);
   })
-})
+}
+
+
+if (config.mode == 'udp')
+{
+  /**
+   * Setup the UDP Listener
+   */
+    udpServer.on("listening", function () {
+    if (!config.quiet) console.log("* UDP server listening on %s:%d", udpServer.address().address, udpServer.address().port);
+  });
+  
+  /** When a UDP datagram is received **/
+  udpServer.on("message", function (lines, rinfo) {
+    lines = lines.toString().replace(/([^\r\n]+|[^\n]+)[\r\n|\n]+/g, function (m, line) {
+      parse_message(line)
+  })
+  }
+  ); 
+  
+  udpServer.bind(config.udpport);
+}
+else
+{
+  var tail
+  if (~spawnArgs.indexOf('-f')) {
+    if (!config.quiet) console.log('* tailing:', spawnArgs[spawnArgs.indexOf('-f') + 1])
+    tail = spawn('tail', spawnArgs).stdout
+  }
+  else {
+    console.log('* tailing stdin')
+    process.stdin.resume()
+    tail = process.stdin
+  }
+  
+  var lines = ''
+  
+  tail.setEncoding('utf8')
+  tail.on('data', function (data) {
+    //if (config.verbose) process.stdout.write('Receive data: ' + data)
+    lines += data
+    lines = lines.replace(/([^\r\n]+|[^\n]+)[\r\n|\n]+/g, function (m, line) {
+      parse_message(line)
+    return ''
+    })
+  })
+}
+
+
+
