@@ -24,9 +24,9 @@ Omit the `-g` to install as a module.
 
 ### The UDP Server
 
-`$ maptail --udp --udp-port 3001
+`$ maptail --udp --udp-port 3001`
 
-`$ tail -f access.log | nc -u localhost 3001
+`$ tail -f access.log | nc -u localhost 3001`
 
 
 ### In your server:
