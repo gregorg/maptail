@@ -10,6 +10,7 @@ var help = '\nusage: maptail [-f filename|--udp] [-h host] [-p port] [--udp-port
          + '  --fps <fps> ............ how fast do the markers age [60]'
          + '  --quiet ................ really quiet, output nothing\n'
          + '  --verbose .............. proxy to stdout\n'
+         + '  --debug.. .............. debug each message received\n'
          + '  --no-message ........... disable messages\n'
 
 var spawn = require('child_process').spawn
@@ -26,6 +27,7 @@ var config = {
 , mode: 'file'
 , quiet: false
 , verbose: false
+, debug: false
 , nomessage: false
 }
 process.title = "maptail"
@@ -37,6 +39,7 @@ while (arg = args.shift()) {
   else if (arg == '--help') console.log(help), process.exit()
   else if (arg == '--quiet') config.quiet = true
   else if (arg == '--verbose') config.verbose = true
+  else if (arg == '--debug') config.debug = true
   else if (arg == '--no-message') config.nomessage = true
   else if (arg == '--max-dots' || arg == '--maxdots') maptail.config.maxDots = parseInt(args.shift(), 10)
   else if (arg == '--decay' || arg == '--ttl') maptail.config.ttl = parseInt(args.shift(), 10)
@@ -99,7 +102,7 @@ function parse_message (msg)
 
   messages.forEach(function (message) {
     if (config.nomessage) message.info = null
-    if (config.verbose) console.log('Message: ip=' + message.ip + ', info=' + message.info)
+    if (config.debug) console.log('Message: ip=' + message.ip + ', info=' + message.info)
     maptail.emit('message', message);
   })
 }
