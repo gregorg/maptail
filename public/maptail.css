@@ -50,7 +50,7 @@ html, body {
 
 .marker {
   position:absolute;
-  background:url('maptail-marker-pink.png') top left no-repeat;
+  background:url('maptail-marker.png') top left no-repeat;
   width:34px;
   height:34px;
   margin-top:-12px;
@@ -60,7 +60,7 @@ html, body {
 .marker .data {
   position:absolute;
   background:rgba(0,0,0,0.84);
-  color:magenta;
+  color:yellow;
   top:-26px;
   left:-32px;
   width:100px;
@@ -115,7 +115,7 @@ html, body {
 }
 
 #iplist div:hover, #iplist div:hover > *, #iplist div.hovered, #iplist div.hovered > * {
-  color:magenta !important;
+  color:yellow !important;
 }
 
 .city {
@@ -123,7 +123,7 @@ html, body {
 }
 
 .country {
-  color:magenta;
+  color:yellow;
 }
 
 #regexp {
@@ -136,7 +136,7 @@ html, body {
   padding:6px;
   font-family:Consolas;
   font-size:14px;
-  color:magenta;
+  color:yellow;
 }
 
 #regexp:focus {
@@ -164,7 +164,7 @@ html, body {
   top:-100px;
   width:4px;
   height:4px;
-  background:url(maptail-dot-pink.png) top left no-repeat;
+  background:url(maptail-dot.png) top left no-repeat;
   z-index:15;
 }
 

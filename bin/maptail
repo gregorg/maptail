@@ -131,7 +131,7 @@ else
 {
   var tail
   if (~spawnArgs.indexOf('-f')) {
-    if (!config.quiet) console.log('* tailing:', spawnArgs[spawnArgs.indexOf('-f') + 1])
+    if (!config.quiet) console.log('* tailing:', spawnArgs[spawnArgs.indexOf('-F') + 1])
     tail = spawn('tail', spawnArgs).stdout
   }
   else {
