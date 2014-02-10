@@ -31,6 +31,7 @@ var config = {
 , nomessage: false
 }
 process.title = "maptail"
+maptail.config.onlyLookups = true
 
 var arg, args = process.argv.slice(2), spawnArgs = []
 while (arg = args.shift()) {
