@@ -415,20 +415,25 @@ window.onload = function () {
       
       this.object = document.createElement('div')
       this.object.className = 'marker'
-      this.location = {
-        object: document.createElement('div')
-      }
-      var html =
-      '<div class="data">'
-      + '<div class="location">'
-      + (geo.city ? geo.city + ', ' : '') + (geo.country ? geo.country : 'unknown')
-      + '</div>'
-      + '<div class="age">active <span class="age-number">23.1</span>s ago</div>'
-      + '</div>'
-      this.object.innerHTML = html
       this.inner = {}
-      this.inner.ageNumber = this.object.getElementsByClassName('age-number')[0]
-      this.inner.ageNumber.textContent = '0.0'
+      this.inner.ageNumber = 1.0
+
+      if (config.highPerf)
+      {
+        this.location = {
+          object: document.createElement('div')
+        }
+        var html =
+        '<div class="data">'
+        + '<div class="location">'
+        + (geo.city ? geo.city + ', ' : '') + (geo.country ? geo.country : 'unknown')
+        + '</div>'
+        + '<div class="age">active <span class="age-number">23.1</span>s ago</div>'
+        + '</div>'
+        this.object.innerHTML = html
+        this.inner.ageNumber = this.object.getElementsByClassName('age-number')[0]
+        this.inner.ageNumber.textContent = '0.0'
+      }
 
       this.ipList = {
         object: document.createElement('div')
@@ -448,9 +453,12 @@ window.onload = function () {
     Marker.prototype.age = function () {
       var now = Date.now()
       var age = (now - this.date) / 1000
-      this.inner.ageNumber.textContent = age.toFixed(1)
-      if (age > config.ttl) map.markers.remove(this)
+      if (config.highPerf)
+        this.inner.ageNumber.textContent = age.toFixed(1)
       else
+        this.inner.ageNumber = age.toFixed(1)
+      if (age > config.ttl) map.markers.remove(this)
+      else if (config.highPerf)
         this.object.style.opacity = 1 - (age / config.ttl)
     }
 
