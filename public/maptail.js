@@ -552,17 +552,17 @@ window.onload = function () {
           active.textContent = visitors
           if (geo.info) {
             messages.add(geo.info)
-      }
-      if(geo.ip)
-      {
-            matches.consider(geo)
-      }
-      if(geo.sound)
-      {
-        console.log("Playing sound: " + geo.sound)
-        var snd = new Audio(geo.sound + ".mp3")
-        snd.play()
-      }
+          }
+          if(geo.ip)
+          {
+                matches.consider(geo)
+          }
+          if(geo.sound)
+          {
+            console.log("Playing sound: " + geo.sound)
+            var snd = new Audio(geo.sound + ".mp3")
+            snd.play()
+          }
         }, n += nadd)
       })
     })

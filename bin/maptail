@@ -103,7 +103,7 @@ function parse_message (msg)
 
   messages.forEach(function (message) {
     if (config.nomessage) message.info = null
-    if (config.debug) console.log('Message: ip=' + message.ip + ', info=' + message.info)
+    if (config.debug && message.ip) console.log('Message: ip=' + message.ip + ', info=' + message.info)
     maptail.emit('message', message);
   })
 }
